@@ -1,11 +1,21 @@
 import { useState } from "react";
-import Cart from "./components/Cart";
-import Form from "./components/Form";
-import NavBar from "./components/NavBar";
+import ProductList from "./components/ProductList";
 
 function App() {
-  const [cartItems, setCartItems] = useState(["Product1", "Product2"]);
-  return <Form />;
+  const [category, setCategory] = useState("");
+  return (
+    <>
+      <select
+        className="form-select col-6 mx-auto"
+        onChange={(event) => setCategory(event.target.value)}
+      >
+        <option value=""></option>
+        <option value="">Clothing</option>
+        <option value="">Household</option>
+      </select>
+      <ProductList category={category} />
+    </>
+  );
 }
 
 export default App;
