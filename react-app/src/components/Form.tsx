@@ -1,16 +1,20 @@
 import { FieldValues, useForm } from "react-hook-form";
+import { z } from "zod";
+import { zodResolver } from "@hookform/resolvers/zod";
 
-interface FormData {
-  name: string;
-  age: number;
-}
+const schema = z.object({
+  name: z.string().min(3, { message: "name is required" }),
+  age: z.number({ invalid_type_error: "Age field is required" }).min(18),
+});
+
+type FormData = z.infer<typeof schema>;
 
 const Form = () => {
   const {
     register,
     handleSubmit,
-    formState: { errors },
-  } = useForm<FormData>();
+    formState: { errors, isValid },
+  } = useForm<FormData>({ resolver: zodResolver(schema) });
   const onSubmit = (data: FieldValues) => console.log(data);
 
   return (
@@ -20,16 +24,13 @@ const Form = () => {
           Name
         </label>
         <input
-          {...register("name", { required: true, minLength: 5 })}
+          {...register("name")}
           id="name"
           type="text"
           className="form-control"
         />
-        {errors.name?.type === "required" && (
-          <p className="text-center text-danger mt-2">Nom requise</p>
-        )}
-        {errors.name?.type === "minLength" && (
-          <p className="text-center text-danger mt-2">Minimum 5 caractèère</p>
+        {errors.name && (
+          <p className="text-danger mt-2">{errors.name.message}</p>
         )}
       </div>
       <div className="mb-3 col-6 mx-auto">
@@ -37,20 +38,15 @@ const Form = () => {
           Age
         </label>
         <input
-          {...register("age", { required: true, minLength: 2 })}
+          {...register("age", { valueAsNumber: true })}
           id="age"
           type="number"
           className="form-control"
         />
-        {errors.age?.type === "required" && (
-          <p className="text-center text-danger">Age requise</p>
-        )}
-        {errors.age?.type === "minLength" && (
-          <p className="text-center text-danger">min 2 chiffre</p>
-        )}
+        {errors.age && <p className="text-danger mt-2">{errors.age.message}</p>}
       </div>
       <div className="text-center">
-        <button className="btn btn-primary" type="submit">
+        <button disabled={!isValid} className="btn btn-primary" type="submit">
           Submit
         </button>
       </div>
